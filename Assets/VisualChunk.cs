@@ -78,7 +78,6 @@ public class VisualChunk
 
 	public void RebuildMesh() {
 		ChunkLightmap lightmap = _world.GetLightmap(_chunk.Key);
-		lightmap.Propagate();
 
 		Profiler.BeginSample("RebuildMesh");
 		for (int x=0; x<16; x++) {
