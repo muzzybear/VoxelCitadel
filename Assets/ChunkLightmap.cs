@@ -51,6 +51,15 @@ public class ChunkLightmap
 		}
 	}
 
+	// FIXME temporary
+	public float GetLightValue(Vector3i localPosition) {
+		ushort raw = GetLight(localPosition);
+		float light = raw/16.0f;
+		// exponential falloff
+		light *= light;
+		return light;
+	}
+
 	private void attemptPropagate(Vector3i target, ushort sourceLight) {
 		if (sourceLight <= 1)
 			return;

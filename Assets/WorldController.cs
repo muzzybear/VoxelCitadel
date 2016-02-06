@@ -33,6 +33,35 @@ public class WorldController : MonoBehaviour {
 		sw.Reset();
 		sw.Start();
 
+		// make some dummy content
+		_world.BeginBatchUpdate();
+		for (int x=0; x<_world.SizeX*16; x++) {
+			int z = 91;
+
+			_world.SetBlock(new Vector3i(x, 85, z-2), new BlockType(2));
+			_world.SetBlock(new Vector3i(x, 85, z-1), new BlockType(2));
+			_world.SetBlock(new Vector3i(x, 85, z), new BlockType(2));
+			_world.SetBlock(new Vector3i(x, 85, z+1), new BlockType(2));
+			_world.SetBlock(new Vector3i(x, 85, z+2), new BlockType(2));
+
+			_world.SetBlock(new Vector3i(x, 86, z), new BlockType(0));
+			_world.SetBlock(new Vector3i(x, 87, z), new BlockType(0));
+			_world.SetBlock(new Vector3i(x, 88, z), new BlockType(0));
+			_world.SetBlock(new Vector3i(x, 86, z-1), new BlockType(0));
+			_world.SetBlock(new Vector3i(x, 87, z-1), new BlockType(0));
+			_world.SetBlock(new Vector3i(x, 86, z+1), new BlockType(0));
+			_world.SetBlock(new Vector3i(x, 87, z+1), new BlockType(0));
+
+
+			// pillars
+			if (x%6 == 3) {
+				for(int y=84; y>0 && _world.GetBlock(new Vector3i(x,y,z)).isTransparent(); y--) {
+					_world.SetBlock(new Vector3i(x, y, z), new BlockType(2));
+				}
+			}
+		}
+		_world.EndBatchUpdate();
+
 		_world.Sunlight.CalculateAll();
 
 		// Do initial direct lighting

@@ -51,12 +51,13 @@ public static class CubeBuilder
 
 	public static void buildCube(MeshBuilder mb, Vector3i pos, Chunk chunk, ChunkLightmap lightmap) {
 		// FIXME foo...
-		Color brown = new Color(0.87f, 0.65f, 0.47f) * 0.75f;
+		Color brown = new Color(0.65f, 0.4f, 0.2f);
+		Color gray = new Color(0.4f, 0.4f, 0.4f);
 		Color[] foo = {brown*0.8f, brown*0.8f, Color.green, brown*0.5f, brown, brown};
 
 		BlockType block = chunk.GetBlock(pos);
 		if (block.Raw == 2) {
-			foo = new Color[] {Color.gray*0.7f, Color.gray*0.7f, Color.gray, Color.gray*0.5f, Color.gray*0.85f, Color.gray*0.85f};
+			foo = new Color[] {gray*0.6f, gray*0.6f, gray, gray*0.5f, gray*0.80f, gray*0.80f};
 		}
 
 		for(int i=0; i<6; i++) {
@@ -65,7 +66,7 @@ public static class CubeBuilder
 				
 			Vector3i normal = cubeNormals[i];
 
-			int[] ao = new int[4];
+			float[] ao = new float[4];
 
 			for(int v=0; v<4; v++) {
 				Vector3i vertex = cubeVertices[cubeFaces[i,v]];
@@ -73,36 +74,33 @@ public static class CubeBuilder
 				// for sake of simplicity, get diagonal light value too even though it could be blocked by the two adjacent blocks
 				if (i==0 || i==1) {
 					// x
-					ao[v] = lightmap.GetLight(pos + new Vector3i(-1+normal.x+1, -1+vertex.y, -1+vertex.z)) +
-						lightmap.GetLight(pos + new Vector3i(-1+normal.x+1, -1+vertex.y+1, -1+vertex.z)) +
-						lightmap.GetLight(pos + new Vector3i(-1+normal.x+1, -1+vertex.y, -1+vertex.z+1)) +
-						lightmap.GetLight(pos + new Vector3i(-1+normal.x+1, -1+vertex.y+1, -1+vertex.z+1));
+					ao[v] = lightmap.GetLightValue(pos + new Vector3i(-1+normal.x+1, -1+vertex.y, -1+vertex.z)) +
+						lightmap.GetLightValue(pos + new Vector3i(-1+normal.x+1, -1+vertex.y+1, -1+vertex.z)) +
+						lightmap.GetLightValue(pos + new Vector3i(-1+normal.x+1, -1+vertex.y, -1+vertex.z+1)) +
+						lightmap.GetLightValue(pos + new Vector3i(-1+normal.x+1, -1+vertex.y+1, -1+vertex.z+1));
 				} else if (i==2 || i==3) {
 					// y
-					ao[v] = lightmap.GetLight(pos + new Vector3i(-1+vertex.x, -1+normal.y+1, -1+vertex.z)) +
-						lightmap.GetLight(pos + new Vector3i(-1+vertex.x+1, -1+normal.y+1, -1+vertex.z)) +
-						lightmap.GetLight(pos + new Vector3i(-1+vertex.x, -1+normal.y+1, -1+vertex.z+1)) +
-						lightmap.GetLight(pos + new Vector3i(-1+vertex.x+1, -1+normal.y+1, -1+vertex.z+1));
+					ao[v] = lightmap.GetLightValue(pos + new Vector3i(-1+vertex.x, -1+normal.y+1, -1+vertex.z)) +
+						lightmap.GetLightValue(pos + new Vector3i(-1+vertex.x+1, -1+normal.y+1, -1+vertex.z)) +
+						lightmap.GetLightValue(pos + new Vector3i(-1+vertex.x, -1+normal.y+1, -1+vertex.z+1)) +
+						lightmap.GetLightValue(pos + new Vector3i(-1+vertex.x+1, -1+normal.y+1, -1+vertex.z+1));
 				} else {
 					// z
-					ao[v] = lightmap.GetLight(pos + new Vector3i(-1+vertex.x, -1+vertex.y, -1+normal.z+1)) +
-						lightmap.GetLight(pos + new Vector3i(-1+vertex.x+1, -1+vertex.y, -1+normal.z+1)) +
-						lightmap.GetLight(pos + new Vector3i(-1+vertex.x, -1+vertex.y+1, -1+normal.z+1)) +
-						lightmap.GetLight(pos + new Vector3i(-1+vertex.x+1, -1+vertex.y+1, -1+normal.z+1));
+					ao[v] = lightmap.GetLightValue(pos + new Vector3i(-1+vertex.x, -1+vertex.y, -1+normal.z+1)) +
+						lightmap.GetLightValue(pos + new Vector3i(-1+vertex.x+1, -1+vertex.y, -1+normal.z+1)) +
+						lightmap.GetLightValue(pos + new Vector3i(-1+vertex.x, -1+vertex.y+1, -1+normal.z+1)) +
+						lightmap.GetLightValue(pos + new Vector3i(-1+vertex.x+1, -1+vertex.y+1, -1+normal.z+1));
 				}
 				vertex += pos;
 
 				mb.Vertices.Add((Vector3)vertex);
 				mb.Normals.Add((Vector3)normal);
 				mb.UVs.Add(UVs[v]);
-				// ...
 
-				float aoFactor = Mathf.Clamp(ao[v], 0, 4*15);
-				aoFactor /= 4*15;
+				float aoFactor = Mathf.Clamp(ao[v], 0, 4);
+				aoFactor /= 4;
 
-				float ambient = 0.15f;
-
-				Color color = foo[i] * (ambient + aoFactor*(1f-ambient));
+				Color color = foo[i] * aoFactor;
 
 				mb.Colors32.Add(color);
 			}

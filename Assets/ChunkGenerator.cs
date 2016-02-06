@@ -7,7 +7,7 @@ public class ChunkGenerator : IChunkLoader
 
 	public ChunkGenerator ()
 	{
-		_simplex = new SimplexNoiseGenerator(new int[]{1,2,3,4,5,6,7,8});
+		_simplex = new SimplexNoiseGenerator(new int[]{1,3,3,7,7,3,5,7});
 	}
 
 	public void LoadChunk(Vector3i key, BlockType[,,] output) {
