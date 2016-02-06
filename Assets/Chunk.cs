@@ -45,19 +45,9 @@ public class Chunk
 		}
 	}
 
-	public void SetBlocks(BlockType[,,] blocks) {
-		// TODO we could maybe verify that the input is 16x16x16
-
+	public void LoadBlocks(IChunkLoader loader) {
 		_world.RWLock.AcquireWriterLock(System.Threading.Timeout.Infinite);
-
-		for (int x=0; x<16; x++) {
-			for (int y=0; y<16; y++) {
-				for (int z=0; z<16; z++) {
-					_data[x,y,z] = blocks[x,y,z];
-				}
-			}
-		}
-
+		loader.LoadChunk(_key, _data);
 		_world.RWLock.ReleaseWriterLock();
 		_world.ChunkModified(this);
 

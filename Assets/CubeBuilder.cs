@@ -54,6 +54,11 @@ public static class CubeBuilder
 		Color brown = new Color(0.87f, 0.65f, 0.47f) * 0.75f;
 		Color[] foo = {brown*0.8f, brown*0.8f, Color.green, brown*0.5f, brown, brown};
 
+		BlockType block = chunk.GetBlock(pos);
+		if (block.Raw == 2) {
+			foo = new Color[] {Color.gray*0.7f, Color.gray*0.7f, Color.gray, Color.gray*0.5f, Color.gray*0.85f, Color.gray*0.85f};
+		}
+
 		for(int i=0; i<6; i++) {
 			if (!chunk.IsBlockFaceVisible(pos, (BlockFace)i))
 				continue;
@@ -64,27 +69,6 @@ public static class CubeBuilder
 
 			for(int v=0; v<4; v++) {
 				Vector3i vertex = cubeVertices[cubeFaces[i,v]];
-				/*
-				if (i==0 || i==1) {
-					// x
-					ao[v] = lights[normal.x+1, vertex.y, vertex.z] +
-						lights[normal.x+1, vertex.y+1, vertex.z] +
-						lights[normal.x+1, vertex.y, vertex.z+1] +
-						lights[normal.x+1, vertex.y+1, vertex.z+1];
-				} else if (i==2 || i==3) {
-					// y
-					ao[v] = lights[vertex.x, normal.y+1, vertex.z] +
-						lights[vertex.x+1, normal.y+1, vertex.z] +
-						lights[vertex.x, normal.y+1, vertex.z+1] +
-						lights[vertex.x+1, normal.y+1, vertex.z+1];
-				} else {
-					// z
-					ao[v] = lights[vertex.x, vertex.y, normal.z+1] +
-						lights[vertex.x+1, vertex.y, normal.z+1] +
-						lights[vertex.x, vertex.y+1, normal.z+1] +
-						lights[vertex.x+1, vertex.y+1, normal.z+1];
-				}
-				*/
 
 				// for sake of simplicity, get diagonal light value too even though it could be blocked by the two adjacent blocks
 				if (i==0 || i==1) {

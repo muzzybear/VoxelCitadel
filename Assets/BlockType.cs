@@ -5,6 +5,7 @@ public struct BlockType
 	public static readonly BlockType Empty = new BlockType(0);
 
 	private ushort _raw;
+	public ushort Raw { get { return _raw; } }
 
 	public bool isTransparent() { return _raw==0; }
 

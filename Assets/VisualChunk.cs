@@ -20,12 +20,19 @@ public class VisualChunk
 		_world = world;
 
 		_mesh = new Mesh();
-		_object = new GameObject(string.Format("chunk_{0}_{1}_{2}", _chunk.Key.x, _chunk.Key.y, _chunk.Key.z), new Type[] { typeof(MeshFilter), typeof(MeshRenderer) });
+		// DEBUG foofoo
+		_mesh.MarkDynamic();
+
+		_object = new GameObject(
+			string.Format("chunk_{0}_{1}_{2}", _chunk.Key.x, _chunk.Key.y, _chunk.Key.z),
+			new Type[] { typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider) }
+		);
+		
 		// TODO maybe we should've just passed Transform to begin with?
 		_object.transform.parent = parentObject.transform;
 
 		var meshFilter = _object.GetComponent<MeshFilter>();
-		//var meshcollider = _object.GetComponent<MeshCollider>();
+		var meshcollider = _object.GetComponent<MeshCollider>();
 		var renderer = _object.GetComponent<MeshRenderer>();
 		Material mat = new Material(Shader.Find("Unlit/VoxelShader"));
 		/*
@@ -48,9 +55,8 @@ public class VisualChunk
 		tex.Apply();
 		mat.mainTexture = tex;
 		renderer.sharedMaterial = mat;
-		meshFilter.sharedMesh = _mesh;
-		//meshcollider.sharedMesh = _mesh;
-		//_meshcollider.sharedMaterial = ... do we need?
+
+		//_meshcollider.sharedMaterial = ... do we need physics material?
 
 		// position things
 		_object.transform.localPosition = (Vector3) (_chunk.Key * 16);
@@ -67,6 +73,11 @@ public class VisualChunk
 		}
 
 		RebuildMesh();
+
+		// TODO is it a good idea to use meshcollider for terrain?
+		meshcollider.sharedMesh = null;
+		meshcollider.sharedMesh = _mesh;
+		meshFilter.sharedMesh = _mesh;
 	}
 
 	// flagging self dirty if rebuild needed, e.g. neighbour edge lights change

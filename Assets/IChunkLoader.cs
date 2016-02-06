@@ -2,6 +2,5 @@
 
 public interface IChunkLoader
 {
-	// TODO ... might not be the best API
-	void LoadChunk(Chunk chunk);
+	void LoadChunk(Vector3i key, BlockType[,,] output);
 }

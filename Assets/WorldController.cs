@@ -10,7 +10,13 @@ public class WorldController : MonoBehaviour {
 
 	private Queue<Chunk> _foofoo = new Queue<Chunk>();
 
+	// ....
+	private Transform _targeting;
+
+
 	void Start () {
+		// DEBUG foofoo testing...
+		_targeting = GameObject.Find("Targeting").transform;
 
 		ChunkGenerator chunkgen = new ChunkGenerator();
 
@@ -39,7 +45,7 @@ public class WorldController : MonoBehaviour {
 			}
 		}
 
-		// TODO do proper lighting...
+		// spread the sunlight all around the place
 		for (int cy=_world.SizeY-1; cy>=0; cy--) {
 			for (int cx=0; cx<_world.SizeX; cx++) {
 				for (int cz=0; cz<_world.SizeZ; cz++) {
@@ -59,6 +65,9 @@ public class WorldController : MonoBehaviour {
 
 		StartCoroutine(CheckLighting());
 	}
+
+	// FIXME if lighting affects gameplay, it is unacceptable to delay it!!!
+	// mesh rebuilds can be delayed, it's just representation
 
 	IEnumerator CheckLighting() {
 		// first wait for previous work to finish, then check once per second
@@ -80,6 +89,16 @@ public class WorldController : MonoBehaviour {
 	}
 
 	void Update () {
+		Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width/2, Screen.height/2, 0));
+		RaycastHit hit;
+
+		//Debug.DrawLine(ray.origin, ray.direction*100);
+
+		if (Physics.Raycast(ray, out hit)) {
+			//Debug.Log("HIT!");
+			_targeting.transform.localPosition = hit.point;
+		}
+
 		// TODO any better way to not waste time? threads? :P
 		var sw = new System.Diagnostics.Stopwatch();
 		sw.Start();
@@ -94,7 +113,8 @@ public class WorldController : MonoBehaviour {
 			VisualChunk vis;
 			_vis.TryGetValue(chunk.Key, out vis);
 			if (vis != null) {
-				// FIXME do we need to rebuild lights?
+				ChunkLightmap lightmap = _world.GetLightmapFor(chunk);
+				lightmap.Propagate();
 				vis.RebuildMesh();
 			} else {
 				vis = new VisualChunk(chunk, _world, gameObject);

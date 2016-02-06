@@ -45,7 +45,7 @@ public class World
 
 		if (loader != null) {
 			BeginBatchUpdate();
-			loader.LoadChunk(chunk);
+			chunk.LoadBlocks(loader);
 			EndBatchUpdate();
 		}
 
