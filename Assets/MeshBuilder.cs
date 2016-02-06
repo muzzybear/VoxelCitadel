@@ -64,8 +64,6 @@ public class MeshBuilder
 			else
 				throw new System.InvalidOperationException("Colors count does not match vertices count");
 		}
-
-		mesh.RecalculateBounds();
 	}
 }
 
