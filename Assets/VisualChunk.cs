@@ -8,9 +8,6 @@ public class VisualChunk
 
 	private readonly World _world;
 
-	//private MeshFilter _meshFilter;
-	//private MeshCollider _meshcollider;
-
 	private Mesh _mesh;
 	private GameObject _object;
 
@@ -35,28 +32,8 @@ public class VisualChunk
 		var meshcollider = _object.GetComponent<MeshCollider>();
 		var renderer = _object.GetComponent<MeshRenderer>();
 
-		Material mat = new Material(Shader.Find("Unlit/VoxelShader"));
-		/*
-		var tex = Resources.Load<Texture2D>("test-64x64");
-		if (tex == null) {
-			Debug.Log("Failed to load test texture :(");
-		}
-		*/
-		/*
-		var tex = new Texture2D(64, 64);
-		tex.wrapMode = TextureWrapMode.Clamp;
-		Color[] pixels = new Color[tex.width*tex.height];
-		for (int y=0; y<tex.height; y++) {
-			for (int x=0; x<tex.width; x++) {
-				float v = UnityEngine.Random.value;
-				v = (1f-v*v)*0.5f + 0.5f;
-				pixels[y*tex.width + x] = new Color(v,v,v);
-			}
-		}
-		tex.SetPixels(pixels);
-		tex.Apply();
-		mat.mainTexture = tex;
-		*/
+		Material mat = new Material(Shader.Find("Lit/VoxelShader"));
+
 		mat.mainTexture = _atlas.Texture;
 		renderer.sharedMaterial = mat;
 

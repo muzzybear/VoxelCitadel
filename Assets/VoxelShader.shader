@@ -1,4 +1,4 @@
-﻿Shader "Unlit/VoxelShader"
+﻿Shader "Lit/VoxelShader"
 {
 	Properties
 	{
