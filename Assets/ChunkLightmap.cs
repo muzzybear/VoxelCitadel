@@ -54,9 +54,10 @@ public class ChunkLightmap
 	// FIXME temporary
 	public float GetLightValue(Vector3i localPosition) {
 		ushort raw = GetLight(localPosition);
-		float light = raw/16.0f;
+		float light = UnityEngine.Mathf.Pow(0.8f, 15-raw);
+		//float light = UnityEngine.Mathf.Min(raw/15.0f, 1f);
 		// exponential falloff
-		light *= light;
+		//light *= light;
 		return light;
 	}
 

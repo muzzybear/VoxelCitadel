@@ -32,10 +32,15 @@ public class ChunkGenerator : IChunkLoader
 					if (wy > foo) {
 						// Air above ground level
 						block = BlockType.Empty;
-					} else {						
+					} else {
+						// default to dirt
 						block = new BlockType(1);
 						if (wy < (foo-1)*0.95f) {
+							// bottom is stone
 							block = new BlockType(2);
+						} else if (wy > (foo-1)) {
+							// top layer is grass
+							block = new BlockType(3);
 						}
 					}
 					if (block != BlockType.Empty) {

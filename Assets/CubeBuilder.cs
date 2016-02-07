@@ -32,14 +32,14 @@ public static class CubeBuilder
 	 * Triangles: {1,2,3}, {2,1,0}
 	 * 
 	 **/
-
+	/*
 	private static readonly Vector2[] UVs = {
 		new Vector2(0, 0),
 		new Vector2(1, 0),
 		new Vector2(0, 1),
 		new Vector2(1, 1),
 	};
-
+	*/
 	private static readonly int[,] cubeFaces = {
 		{1, 5, 3, 7},
 		{4, 0, 6, 2},
@@ -49,22 +49,27 @@ public static class CubeBuilder
 		{0, 1, 2, 3},
 	};
 
-	public static void buildCube(MeshBuilder mb, Vector3i pos, Chunk chunk, ChunkLightmap lightmap) {
+	public static void buildCube(MeshBuilder mb, Vector3i pos, Chunk chunk, ChunkLightmap lightmap, BlockAppearance appearance) {
 		// FIXME foo...
 		Color brown = new Color(0.65f, 0.4f, 0.2f);
-		Color gray = new Color(0.4f, 0.4f, 0.4f);
-		Color[] foo = {brown*0.8f, brown*0.8f, Color.green, brown*0.5f, brown, brown};
+		//Color[] foo = {brown*0.8f, brown*0.8f, Color.green, brown*0.5f, brown, brown};
+		//Color[] foo = {brown, brown, Color.green, brown, brown, brown};
 
 		BlockType block = chunk.GetBlock(pos);
-		if (block.Raw == 2) {
-			foo = new Color[] {gray*0.6f, gray*0.6f, gray, gray*0.5f, gray*0.80f, gray*0.80f};
-		}
 
 		for(int i=0; i<6; i++) {
 			if (!chunk.IsBlockFaceVisible(pos, (BlockFace)i))
 				continue;
+
+			Rect UVs = appearance.UVRects[i];
+			Color tint = appearance.Colors[i];
 				
 			Vector3i normal = cubeNormals[i];
+
+			mb.UVs.Add(new Vector2(UVs.xMin, UVs.yMin));
+			mb.UVs.Add(new Vector2(UVs.xMax, UVs.yMin));
+			mb.UVs.Add(new Vector2(UVs.xMin, UVs.yMax));
+			mb.UVs.Add(new Vector2(UVs.xMax, UVs.yMax));
 
 			float[] ao = new float[4];
 
@@ -95,12 +100,11 @@ public static class CubeBuilder
 
 				mb.Vertices.Add((Vector3)vertex);
 				mb.Normals.Add((Vector3)normal);
-				mb.UVs.Add(UVs[v]);
 
 				float aoFactor = Mathf.Clamp(ao[v], 0, 4);
 				aoFactor /= 4;
 
-				Color color = foo[i] * aoFactor;
+				Color color = tint * aoFactor;
 
 				mb.Colors32.Add(color);
 			}

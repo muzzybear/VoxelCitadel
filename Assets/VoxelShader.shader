@@ -6,7 +6,8 @@
 	}
 	SubShader
 	{
-		Tags { "RenderType"="Opaque" }
+		Tags { "RenderType"="Opaque"}
+		Tags {"LightMode"="ForwardBase"}
 		LOD 100
 
 		Pass
@@ -14,10 +15,10 @@
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			// make fog work
-			#pragma multi_compile_fog
+			#pragma multi_compile_fwdbase
 			
 			#include "UnityCG.cginc"
+			#include "AutoLight.cginc"
 
 			struct appdata
 			{
@@ -28,9 +29,9 @@
 
 			struct v2f
 			{
-				float2 uv : TEXCOORD0;
-				UNITY_FOG_COORDS(1)
-				float4 vertex : SV_POSITION;
+				centroid float2 uv : TEXCOORD0;
+				SHADOW_COORDS(1)
+				float4 pos : SV_POSITION;
 				fixed4 color : COLOR;
 			};
 
@@ -40,22 +41,31 @@
 			v2f vert (appdata v)
 			{
 				v2f o;
-				o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
+				o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
 				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-				UNITY_TRANSFER_FOG(o,o.vertex);
 				o.color = v.color;
+				TRANSFER_SHADOW(o)
 				return o;
 			}
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
+				float2 dx = ddx(i.uv);
+				float2 dy = ddy(i.uv);
+				float dmax_sqr = max(dot(dx,dx), dot(dy,dy));
+				float mip = min(5, 0.5*log2(dmax_sqr)+7.5);
+
 				// sample the texture
-				fixed4 col = i.color * tex2D(_MainTex, i.uv);
-				// apply fog
-				UNITY_APPLY_FOG(i.fogCoord, col);
+				float4 uvw = float4(i.uv, 0,mip);
+				fixed4 t = tex2Dlod(_MainTex, uvw);
+				fixed4 col = i.color * t;
+				fixed shadow = SHADOW_ATTENUATION(i);
+				col.rgb *= shadow;
 				return col;
 			}
 			ENDCG
 		}
+
+		UsePass "Legacy Shaders/VertexLit/SHADOWCASTER"
 	}
 }
