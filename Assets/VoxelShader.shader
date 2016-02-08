@@ -71,13 +71,14 @@
             {
                 if(i.worldpos.y > _VoxelCutY)
                     discard;
+                float2 spos = ComputeScreenPos(i.pos);
                 // it will turn black due to normals facing downwards anyway
                 outDiffuse = half4(0.5,0.5,0.5,0);
                 outSpecSmoothness = half4(0,0,0,1);
                 outNormal = half4(0.5,0,0.5,0);
                 // magic to set color without shadows from backface geometry landing on it...
-                float v = 0.98;
-                outEmission = half4(v,v,v,0);
+                float magic = 1.0f - sign(frac(spos.x/3)-0.5)*sign(frac(spos.y/3)-0.5)*0.003;
+                outEmission = half4(0.988,0.975*magic,0.968*magic*magic,0);
             }
 
             ENDCG
