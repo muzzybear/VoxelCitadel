@@ -46,11 +46,12 @@
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma target 3.0
             #include "UnityCG.cginc"
 
             struct v2f {
                 float4 pos : SV_POSITION;
-                float4 worldpos : FLOAT4;
+                float4 worldpos : POSITION1;
             };
 
             v2f vert(appdata_base v) {

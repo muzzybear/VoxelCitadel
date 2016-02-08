@@ -32,7 +32,7 @@ public class VisualChunk
 		var meshcollider = _object.GetComponent<MeshCollider>();
 		var renderer = _object.GetComponent<MeshRenderer>();
 
-		Material mat = new Material(Shader.Find("Lit/VoxelShader"));
+        Material mat = parentObject.GetComponent<WorldController>().VoxelMaterial;
 
 		mat.mainTexture = _atlas.Texture;
 		renderer.sharedMaterial = mat;

@@ -13,6 +13,7 @@ public class WorldController : MonoBehaviour {
 	// ....
 	private Transform _targeting;
 
+    public Material VoxelMaterial;
 
 	void Start () {
 		// DEBUG foofoo testing...
@@ -117,8 +118,34 @@ public class WorldController : MonoBehaviour {
 		}
 	}
 
+    float _cut = 88.5f;
+    public float wheelspeed = 30f;
+    public float keyspeed = 30f;
+
 	void Update () {
-        Shader.SetGlobalFloat("_VoxelCutY", 88.5f);
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            Application.Quit();
+        }
+
+        float wheel = Input.GetAxis("Mouse ScrollWheel");
+        _cut += wheel*Time.deltaTime*wheelspeed;
+
+        //_cut += Mathf.Sign(Input.GetAxisRaw("Mouse ScrollWheel"))*1;
+
+        // snap to level afterwards
+        if (Input.GetButtonDown("Depth Scroll") && Input.GetAxisRaw("Depth Scroll") > 0) {
+            _cut = Mathf.Round(_cut+1);
+        } else if (Input.GetButtonDown("Depth Scroll") && Input.GetAxisRaw("Depth Scroll") < 0) {
+            _cut = Mathf.Round(_cut-1);
+        } else if (Input.GetButton("Depth Scroll")) {
+            // slowly scroll after snap if key held down
+            _cut += Input.GetAxis("Depth Scroll")*Time.deltaTime*keyspeed;
+        }
+
+        _cut = Mathf.Clamp(_cut, 0, _world.SizeY*16);
+
+        int levelDisplayed = Mathf.RoundToInt(_cut);
+        Shader.SetGlobalFloat("_VoxelCutY", levelDisplayed + 0.5f);
 
 		Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width/2, Screen.height/2, 0));
 		RaycastHit hit;
