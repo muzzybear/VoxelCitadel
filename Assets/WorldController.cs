@@ -118,6 +118,8 @@ public class WorldController : MonoBehaviour {
 	}
 
 	void Update () {
+        Shader.SetGlobalFloat("_VoxelCutY", 88.5f);
+
 		Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width/2, Screen.height/2, 0));
 		RaycastHit hit;
 
