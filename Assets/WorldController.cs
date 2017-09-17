@@ -147,15 +147,40 @@ public class WorldController : MonoBehaviour {
         int levelDisplayed = Mathf.RoundToInt(_cut);
         Shader.SetGlobalFloat("_VoxelCutY", levelDisplayed + 0.5f);
 
+        // ------ raycast ----
+
 		Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width/2, Screen.height/2, 0));
 		RaycastHit hit;
 
 		//Debug.DrawLine(ray.origin, ray.direction*100);
 
-		if (Physics.Raycast(ray, out hit)) {
-			//Debug.Log("HIT!");
-			_targeting.transform.localPosition = hit.point;
+        //Plane cutPlane = new Plane(new Vector3(0,1,0), levelDisplayed + 0.5f);
+
+
+        // FIXME rewrite, we need custom voxel raytracer due to cutplane nonsense,
+        // other objects can be collided in some other way (based on their visibility)
+		while (Physics.Raycast(ray, out hit)) {
+
+            Vector3 p = hit.point - hit.normal*0.5f;
+            Vector3i targetCoord = new Vector3i(Mathf.FloorToInt(p.x), Mathf.FloorToInt(p.y), Mathf.FloorToInt(p.z));
+            if (targetCoord.y > levelDisplayed) {
+                ray.origin = hit.point;
+                continue;
+            }
+            BlockType block = _world.GetBlock(targetCoord);
+            Chunk chunk = _world.GetChunkAt(targetCoord);
+            string infotext;
+            if (chunk == null) {
+                infotext = "null chunk!? "+targetCoord.ToString() + " ... " + _world.Chunks.Count;
+            } else
+                infotext = string.Format("Chunk {0} @ {1} blocktype {2}", chunk.Key.ToString(), targetCoord.ToString(), block.Raw);
+            // FIXME performance
+            GameObject.Find("TargetingInfo").GetComponent<UnityEngine.UI.Text>().text = infotext;
+            GameObject.Find("Targeting").transform.localPosition = (Vector3)targetCoord + new Vector3(0.5f, 0.5f, 0.5f);
+            break;
 		}
+
+        // ---------- magic rebuild -----------
 
 		// TODO any better way to not waste time? threads? :P
 		var sw = new System.Diagnostics.Stopwatch();

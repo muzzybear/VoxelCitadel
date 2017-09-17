@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 
+// TODO should probably move this out for sake of cleaniness
+using UnityEngine;
+
 public class World
 {
 	// we aren't going to have infinite world...
@@ -156,4 +159,91 @@ public class World
 		Vector3i localpos = worldPosition % 16;
 		chunk.SetBlock(localpos, block);
 	}
+
+    private float intbound(float s, float ds) {
+        // Find the smallest positive t such that s+t*ds is an integer.
+        if (ds < 0) {
+            return intbound(-s, -ds);
+        } else {
+            s = s % 1.0f;
+            // problem is now s+t*ds = 1
+            return (1-s)/ds;
+        }
+    }
+
+    public bool Raycast(UnityEngine.Ray ray) {
+        var bounds = new UnityEngine.Bounds();
+        bounds.SetMinMax(new UnityEngine.Vector3(0,0,0), new UnityEngine.Vector3(_sizeX*16, _sizeY*16, _sizeZ*16));
+
+        // if we're outside world bounds, first intersect the world's bounding box
+        if (! bounds.Contains(ray.origin)) {
+            float dist;
+            if (!bounds.IntersectRay(ray, out dist))
+                return false;
+            ray.origin += ray.direction*dist;
+        }
+        // inside or at world edge, time to voxel trace
+
+        // From "A Fast Voxel Traversal Algorithm for Ray Tracing"
+        // by John Amanatides and Andrew Woo, 1987
+        // <http://www.cse.yorku.ca/~amana/research/grid.pdf>
+        // <http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.42.3443>
+
+        // initialize to initial voxel coordinate
+        // TODO verify that this works reliable even if we started outside the world bounds
+        int x = Mathf.FloorToInt(ray.origin.x);
+        int y = Mathf.FloorToInt(ray.origin.y);
+        int z = Mathf.FloorToInt(ray.origin.z);
+
+        // TODO determine initial distances to voxel edges
+        float tMaxX = intbound(ray.origin.x, ray.direction.x);
+        float tMaxY = intbound(ray.origin.y, ray.direction.y);
+        float tMaxZ = intbound(ray.origin.z, ray.direction.z);
+
+        // determine stepping direction
+        int stepX = (int) Mathf.Sign(ray.direction.x);
+        int stepY = (int) Mathf.Sign(ray.direction.y);
+        int stepZ = (int) Mathf.Sign(ray.direction.z);
+
+        // determine distance (in ray units) between voxel edges
+        float tDeltaX = stepX/ray.direction.x;
+        float tDeltaY = stepY/ray.direction.y;
+        float tDeltaZ = stepZ/ray.direction.z;
+
+        int wx = _sizeX*16;
+        int wy = _sizeY*16;
+        int wz = _sizeZ*16;
+
+        while (
+            (stepX > 0 ? x < wx : x >= 0) &&
+            (stepY > 0 ? y < wy : y >= 0) &&
+            (stepZ > 0 ? z < wz : z >= 0)) {
+
+            // lalala
+            // TODO WE NOW HAVE A VOXEL AT X,Y,Z
+
+            // walk...
+            if (tMaxX < tMaxY) {
+                if (tMaxX < tMaxZ) {
+                    x += stepX;
+                    tMaxX += tDeltaX;
+                } else {
+                    z += stepZ;
+                    tMaxZ += tDeltaZ;
+                }
+            } else {
+                if (tMaxY < tMaxZ) {
+                    y += stepY;
+                    tMaxY += tDeltaY;
+                } else {
+                    z += stepZ;
+                    tMaxZ += tDeltaZ;
+                }
+            }
+          
+        }
+
+
+        return false;
+    }
 }
